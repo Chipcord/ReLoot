@@ -43,7 +43,7 @@ public class ReLoot {
 
     @SubscribeEvent
     public void onCommandRegister(RegisterCommandsEvent event) {
-        net.chip.reloot.commands.GenerateNewLootCommand.register(event.getDispatcher());
+        net.chip.reloot.commands.ReLootCommand.register(event.getDispatcher());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
