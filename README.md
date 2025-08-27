@@ -21,7 +21,7 @@ To generate loot in all loaded chunks, use this command:
 ```
 - **<loottable>** represents the loottable to fill the chests with.
 - **[radius]** only chests within the radius (default is 50 blocks) are affected.
-- **[mode]** can either be replace or keep (optional, default is keep). If set to keep, the chest keeps items already inside the chests, and if set to replace, it replaces the all the loot entirely.
+- **[mode]** can either be replace or keep (optional, default is keep). If set to keep, the chest keeps items already inside the chests, and if set to replace, it replaces existing loot.
 
 ## Examples
 
