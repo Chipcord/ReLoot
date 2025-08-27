@@ -47,7 +47,7 @@ minecraft:chests/woodland_mansion
 
 
 ## Default minecraft chest loottables
-**To use with the mod, just write minecraft:chests/<loottable here>**
+**To use with the mod, just write `minecraft:chests/<loottable here>`**
 
 - abandoned_mineshaft
 - ancient_city
