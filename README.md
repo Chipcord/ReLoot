@@ -1,6 +1,6 @@
 # Add loot to all your chests
 
-[Download on Modrinth](https://modrinth.com/project/reloot/)
+[Download on Modrinth](https://modrinth.com/mod/reloot/)
 
 Wanted to generate loot inside chests without having to fill them manually? This mod provides easy commands to do so.
 
