@@ -76,3 +76,11 @@ minecraft:chests/woodland_mansion
 - underwater_ruin_big
 - underwater_ruin_small
 - woodland_mansion  
+
+## Plans for the future (concepts)
+- Other containers support including Trapped Chests, Barrels, etc.
+- Multiple loottables support (for example: 30% simple_dungeon and 70% desert_pyramid).
+- Modded containers such as safes, drawers which can replace chests with a command.
+- Built-in loottables that support different mods (example: reloot:chests/rare_chest which contains mostly rare items or other themed loottables).
+- Optional refill loot after a certain time.
+- GUI? (less likely)
