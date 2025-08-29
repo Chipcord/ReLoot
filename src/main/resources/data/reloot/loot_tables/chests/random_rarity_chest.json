@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "name": "reloot:chests/common_chest"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "reloot:chests/rare_chest"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "reloot:chests/epic_chest"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "reloot:chests/legendary_chest"
+        }
+      ]
+    }
+  ]
+}
