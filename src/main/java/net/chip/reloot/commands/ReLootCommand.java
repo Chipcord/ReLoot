@@ -15,6 +15,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ReLootCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -27,22 +30,36 @@ public class ReLootCommand {
                                                 ctx.getSource(),
                                                 ResourceLocationArgument.getId(ctx, "loottable"),
                                                 50,
-                                                false
+                                                false,
+                                                -1
                                         ))
                                         .then(Commands.argument("radius", IntegerArgumentType.integer(1))
                                                 .executes(ctx -> convert(
                                                         ctx.getSource(),
                                                         ResourceLocationArgument.getId(ctx, "loottable"),
                                                         IntegerArgumentType.getInteger(ctx, "radius"),
-                                                        false
+                                                        false,
+                                                        -1
                                                 ))
                                                 .then(Commands.argument("mode", StringArgumentType.word())
                                                         .executes(ctx -> convert(
                                                                 ctx.getSource(),
                                                                 ResourceLocationArgument.getId(ctx, "loottable"),
                                                                 IntegerArgumentType.getInteger(ctx, "radius"),
-                                                                StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace")
+                                                                StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace"),
+                                                                -1
                                                         ))
+                                                        .then(Commands.literal("refill")
+                                                                .then(Commands.argument("time", IntegerArgumentType.integer(1))
+                                                                        .executes(ctx -> convert(
+                                                                                ctx.getSource(),
+                                                                                ResourceLocationArgument.getId(ctx, "loottable"),
+                                                                                IntegerArgumentType.getInteger(ctx, "radius"),
+                                                                                StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace"),
+                                                                                IntegerArgumentType.getInteger(ctx, "time")
+                                                                        ))
+                                                                )
+                                                        )
                                                 )
                                         )
                                 )
@@ -52,23 +69,36 @@ public class ReLootCommand {
                                         .executes(ctx -> convertAllLoadedChunks(
                                                 ctx.getSource(),
                                                 ResourceLocationArgument.getId(ctx, "loottable"),
-                                                false
+                                                false,
+                                                -1
                                         ))
                                         .then(Commands.argument("mode", StringArgumentType.word())
                                                 .executes(ctx -> convertAllLoadedChunks(
                                                         ctx.getSource(),
                                                         ResourceLocationArgument.getId(ctx, "loottable"),
-                                                        StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace")
+                                                        StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace"),
+                                                        -1
                                                 ))
+                                                .then(Commands.literal("refill")
+                                                        .then(Commands.argument("time", IntegerArgumentType.integer(1))
+                                                                .executes(ctx -> convertAllLoadedChunks(
+                                                                        ctx.getSource(),
+                                                                        ResourceLocationArgument.getId(ctx, "loottable"),
+                                                                        StringArgumentType.getString(ctx, "mode").equalsIgnoreCase("replace"),
+                                                                        IntegerArgumentType.getInteger(ctx, "time")
+                                                                ))
+                                                        )
+                                                )
                                         )
                                 )
                         )
         );
     }
 
-    private static int convert(CommandSourceStack source, ResourceLocation lootTable, int radius, boolean replace) {
+    private static int convert(CommandSourceStack source, ResourceLocation lootTable, int radius, boolean replace, int refillDelaySeconds) {
         ServerLevel level = source.getLevel();
         BlockPos center = BlockPos.containing(source.getPosition());
+        List<BlockPos> chestPositions = new ArrayList<>();
 
         int converted = 0;
 
@@ -84,7 +114,12 @@ public class ReLootCommand {
                 chest.setLootTable(lootTable, level.random.nextLong());
                 chest.setChanged();
                 converted++;
+                chestPositions.add(pos.immutable());
             }
+        }
+
+        if (refillDelaySeconds > 0) {
+            scheduleRefill(level, chestPositions, lootTable, replace, refillDelaySeconds);
         }
 
         String mode = replace ? "replace" : "keep";
@@ -94,13 +129,14 @@ public class ReLootCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int convertAllLoadedChunks(CommandSourceStack source, ResourceLocation lootTable, boolean replace) {
+    private static int convertAllLoadedChunks(CommandSourceStack source, ResourceLocation lootTable, boolean replace, int refillDelaySeconds) {
         ServerLevel level = source.getLevel();
+        List<BlockPos> chestPositions = new ArrayList<>();
+
         int converted = 0;
 
         BlockPos center = BlockPos.containing(source.getPosition());
         int chunkRadius = 64;
-
         int centerChunkX = center.getX() >> 4;
         int centerChunkZ = center.getZ() >> 4;
 
@@ -122,9 +158,14 @@ public class ReLootCommand {
                         chest.setLootTable(lootTable, level.random.nextLong());
                         chest.setChanged();
                         converted++;
+                        chestPositions.add(chest.getBlockPos().immutable());
                     }
                 }
             }
+        }
+
+        if (refillDelaySeconds > 0) {
+            scheduleRefill(level, chestPositions, lootTable, replace, refillDelaySeconds);
         }
 
         String mode = replace ? "replace" : "keep";
@@ -133,4 +174,9 @@ public class ReLootCommand {
 
         return Command.SINGLE_SUCCESS;
     }
+
+    private static void scheduleRefill(ServerLevel level, List<BlockPos> chestPositions, ResourceLocation lootTable, boolean replace, int delaySeconds) {
+        net.chip.reloot.util.RefillScheduler.schedule(level, chestPositions, lootTable, replace, delaySeconds);
+    }
+
 }
